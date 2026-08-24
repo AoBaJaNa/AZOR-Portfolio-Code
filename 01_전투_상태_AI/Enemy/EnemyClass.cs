@@ -405,7 +405,6 @@ public class EnemyClass : MonoBehaviour
                 hpBarRectTransform.anchoredPosition = localPoint;
 
             }
-            // World Space??寃쎌슦 ?곕줈 泥섎━???꾩슂 ?놁쓬 (吏곸젒 worldPosition ?곸슜)
         }
     }
     protected void UpdateHPBar()
@@ -419,14 +418,11 @@ public class EnemyClass : MonoBehaviour
     {
         if (hpBarInstance == null) return;
 
-        // 耳쒓퀬 ??대㉧ 由ъ뀑
         nameTxt.gameObject.SetActive(true);
 
-        // 湲곗〈 肄붾（?댁씠 ?덉쑝硫?以묐떒
         if (showNameCoroutine != null)
             StopCoroutine(showNameCoroutine);
 
-        // ??肄붾（???쒖옉?댁꽌 0.3珥?湲곕떎?몃떎 ?꾧린
         showNameCoroutine = StartCoroutine(HideNameAfterDelay());
     }
     private IEnumerator HideNameAfterDelay()
@@ -513,31 +509,24 @@ public class EnemyClass : MonoBehaviour
     #region Status Change
     public void PaganBuff(bool value, float multiplier)
     {
-        if (value == IsPaganBuff) return; // 以묐났 ?ㅽ뻾 諛⑹?
+        if (value == IsPaganBuff) return;
         IsPaganBuff = value;
 
         if (IsPaganBuff)
         {
-            // [踰꾪봽 ON]
             maxHP = Mathf.RoundToInt(enemyStats.HP * multiplier);
             currentHP = Mathf.RoundToInt(currentHP * multiplier);
             enemyAttack.attackDamage = Mathf.CeilToInt(enemyStats.Damage * multiplier);
 
-            //////Debug.Log($"{enemyName} 踰꾪봽 ?곸슜: HP {maxHP}, DMG {enemyAttack.attackDamage}");
         }
         else
         {
-            // [踰꾪봽 OFF] ?먮옒 ?섏튂濡?蹂듦뎄
             maxHP = enemyStats.HP;
             enemyAttack.attackDamage = enemyStats.Damage;
 
-            // ?꾩옱 泥대젰 泥섎━: 鍮꾩쑉??留욎떠 以꾩씠嫄곕굹, ?⑥닚??理쒕? 泥대젰???섏? ?딄쾶 議곗젙
-            // 1. 鍮꾩쑉 ?좎? 諛⑹떇 (異붿쿇): ?꾩옱 泥대젰??踰꾪봽 ?곹깭??80%??ㅻ㈃ ?댁젣 ?꾩뿉???먮낯??80% ?좎?
             currentHP = Mathf.RoundToInt(currentHP / multiplier);
 
-            // 2. 珥덇낵 諛⑹?: ?뱀떆?쇰룄 怨꾩궛 ?ㅼ감濡?maxHP瑜??섏? ?딅룄濡?理쒖쥌 ?대옩??
             if (currentHP > maxHP) currentHP = maxHP;
-            //////Debug.Log($"{enemyName} 踰꾪봽 ?댁젣: ?먮옒 ?섏튂濡?蹂듦뎄");
         }
     }
     public void HealHP(float amount)
@@ -561,21 +550,19 @@ public class EnemyClass : MonoBehaviour
     }
     protected int GetFinalDamaged(float damage)
     {
-        float finalMultiplier = 1f; // 100% (?먮낯)?먯꽌 ?쒖옉
+        float finalMultiplier = 1f;
 
         foreach (var kvp in damagedModifiers)
         {
             string key = kvp.Key;
-            float amount = kvp.Value; // ?몃??먯꽌 以 ?쒖닔??媛?(?? 0.15f)
+            float amount = kvp.Value;
 
             if (key.Contains("Buff"))
             {
-                //  踰꾪봽?쇰㈃: 0.2f(20% 利앷?)瑜?-> 諛곗쑉 1.2f濡?怨꾩궛?댁꽌 怨깊븯湲?
                 finalMultiplier *= (1f - amount);
             }
             else
             {
-                //  ?붾쾭?꾨씪硫? 0.15f(15% 媛먯냼)瑜?-> 諛곗쑉 0.85f濡??먮룞 怨꾩궛?댁꽌 怨깊븯湲?
                 finalMultiplier *= (1f + amount);
             }
         }
@@ -598,30 +585,26 @@ public class EnemyClass : MonoBehaviour
     }
     private void GetDefenceModifier()
     {
-        float finalMultiplier = 1f; // 100% (?먮낯)?먯꽌 ?쒖옉
+        float finalMultiplier = 1f;
 
         foreach (var kvp in defenseModifiers)
         {
             string key = kvp.Key;
-            float amount = kvp.Value; // ?몃??먯꽌 以 ?쒖닔??媛?(?? 0.15f)
+            float amount = kvp.Value;
 
             if (key.Contains("Buff"))
             {
-                //  踰꾪봽?쇰㈃: 0.2f(20% 利앷?)瑜?-> 諛곗쑉 1.2f濡?怨꾩궛?댁꽌 怨깊븯湲?
                 finalMultiplier *= (1f + amount);
             }
             else
             {
-                //  ?붾쾭?꾨씪硫? 0.15f(15% 媛먯냼)瑜?-> 諛곗쑉 0.85f濡??먮룞 怨꾩궛?댁꽌 怨깊븯湲?
                 finalMultiplier *= (1f - amount);
             }
         }
 
-        // ?먮낯 諛⑹뼱??湲곗??쇰줈 理쒖쥌 怨꾩궛
         int originalDefence = enemyStats.Defence;
         Defense = Mathf.Max(0, Mathf.RoundToInt(originalDefence * finalMultiplier));
 
-       // Debug.Log($"[?먮룞 怨깆뿰?? ?먮낯: {originalDefence} | 理쒖쥌 諛곗쑉: {finalMultiplier * 100}% | 理쒖쥌 諛⑹뼱?? {defense}");
     }
     public void SetSpeedModifier(string key, float amount)
     {
@@ -638,21 +621,19 @@ public class EnemyClass : MonoBehaviour
     }
     private void GetSpeedModifier()
     {
-        float finalMultiplier = 1f; // 100% (?먮낯)?먯꽌 ?쒖옉
+        float finalMultiplier = 1f;
 
         foreach (var kvp in speedModifiers)
         {
             string key = kvp.Key;
-            float amount = kvp.Value; // ?몃??먯꽌 以 ?쒖닔??媛?(?? 0.15f)
+            float amount = kvp.Value;
 
             if (key.Contains("Buff"))
             {
-                //  踰꾪봽?쇰㈃: 0.2f(20% 利앷?)瑜?-> 諛곗쑉 1.2f濡?怨꾩궛?댁꽌 怨깊븯湲?
                 finalMultiplier *= (1f + amount);
             }
             else
             {
-                //  ?붾쾭?꾨씪硫? 0.15f(15% 媛먯냼)瑜?-> 諛곗쑉 0.85f濡??먮룞 怨꾩궛?댁꽌 怨깊븯湲?
                 finalMultiplier *= (1f - amount);
             }
         }
@@ -718,5 +699,4 @@ public class EnemyClass : MonoBehaviour
     }
 
 }
-
 

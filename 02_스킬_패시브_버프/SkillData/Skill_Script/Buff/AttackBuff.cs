@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "AttackBuff", menuName = "Skill/AttackBuff")]
 public class AttackBuff : SkillData
 {
-    [Header("���� ���� ����")]
+    [Header("어택 버프 설정")]
     public float attackBuffDuration = 15f;
     [Range(1f, 100f)] public float attackBuffMultiplier = 30f;
 
@@ -28,7 +28,7 @@ public class AttackBuff : SkillData
         player.playerSkill.StartCoroutine(player.playerSkill.ISSkill(YieldInstructionCache.GetWait(0.7f)));
         if (PlayerInfo.Instance == null)
         {
-            Debug.LogWarning("PlayerInfo.Instance�� �������� �ʽ��ϴ�.");
+            Debug.LogWarning("PlayerInfo.Instance가 존재하지 않습니다.");
             yield break;
         }
 
@@ -55,4 +55,3 @@ public class AttackBuff : SkillData
         isActive = false;
     }
 }
-

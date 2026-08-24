@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "ShieldBuff", menuName = "Skill/ShieldBuff")]
 public class ShieldBuff : SkillData
 {
-    [Header("���� ���� ����")]
+    [Header("쉴드 버프 설정")]
     public float shieldBuffDuration = 15f;
     [Range(0f, 1f)] public float shieldBuffMultiplier = 0.7f;
 
@@ -29,7 +29,7 @@ public class ShieldBuff : SkillData
 
         if (PlayerInfo.Instance == null)
         {
-            //Debug.LogWarning("PlayerInfo.Instance�� �������� �ʽ��ϴ�.");
+            //Debug.LogWarning("PlayerInfo.Instance가 존재하지 않습니다.");
             yield break;
         }
         player.playerSkill.StartCoroutine(player.playerSkill.ISSkill(YieldInstructionCache.GetWait(0.7f)));
@@ -54,4 +54,3 @@ public class ShieldBuff : SkillData
         isActive = false;
     }
 }
-

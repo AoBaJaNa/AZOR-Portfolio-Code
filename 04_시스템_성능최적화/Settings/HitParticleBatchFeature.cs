@@ -14,8 +14,8 @@ public class HitParticleBatchFeature : ScriptableRendererFeature
         {
             new ShaderTagId("UniversalForward"),
             new ShaderTagId("UniversalForwardOnly"),
-            new ShaderTagId("SRPDefaultUnlit"), // �Ϲ����� Unlit ��ƼŬ��
-            new ShaderTagId("Universal2D")      // Ȥ�� �𸣴� �߰�
+            new ShaderTagId("SRPDefaultUnlit"), // 일반적인 Unlit 파티클용
+            new ShaderTagId("Universal2D")      // 혹시 모르니 추가
         };
 
         public HitParticlePass()
@@ -23,10 +23,10 @@ public class HitParticleBatchFeature : ScriptableRendererFeature
             int layerMask = LayerMask.GetMask("HitParticle");
             filteringSettings = new FilteringSettings(RenderQueueRange.transparent, layerMask);
 
-            // Depth ���� �߰�
+            // Depth 설정 추가
             renderStateBlock = new RenderStateBlock(RenderStateMask.Depth);
             renderStateBlock.depthState = new DepthState(false, CompareFunction.LessEqual);
-            // ZTest�� �ϵ�(LessEqual), ZWrite�� ���δ� �� ���� ����Ʈ�� �⺻�Դϴ�.
+            // ZTest는 하되(LessEqual), ZWrite는 꺼두는 게 투명 이펙트의 기본입니다.
 
             renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
         }
@@ -37,9 +37,9 @@ public class HitParticleBatchFeature : ScriptableRendererFeature
         {
             var drawingSettings = CreateDrawingSettings(shaderTagIds, ref renderingData, SortingCriteria.CommonTransparent);
             drawingSettings.perObjectData = PerObjectData.None; // Shared materials determine batching compatibility.
-            // UniversalForward �±� �ϳ��� ��� (Forward ������ ����)
+            // UniversalForward 태그 하나면 충분 (Forward 렌더러 기준)
 /*            var drawingSettings = CreateDrawingSettings(
-                shaderTagIds,        // �� List<ShaderTagId> �����ε� ���
+                shaderTagIds,        // ← List<ShaderTagId> 오버로드 사용
                 ref renderingData,
                 SortingCriteria.None
             );*/

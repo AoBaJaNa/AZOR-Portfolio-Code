@@ -565,7 +565,7 @@ public class InGameUI : MonoBehaviour
     {
         if (Instance == null)
         {
-            Debug.LogWarning("InGameUI Instance媛 議댁옱?섏? ?딆뒿?덈떎.");
+            Debug.LogWarning("InGameUI Instance가 존재하지 않습니다.");
             yield break;
         }
 
@@ -887,4 +887,3 @@ public class InGameUI : MonoBehaviour
         hitstop = null;
     }
 }
-

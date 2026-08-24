@@ -68,10 +68,8 @@ public class SummonData
     public SummonType eqiutSummonType = SummonType.None;
     public List<AbilityStoneCount> equitabilityStoneCounts = new List<AbilityStoneCount>();
     public int summonStone = 0;
-    // ?�환??종류�??�량 리스??
     public List<SummonTypeCount> summonTypeCounts = new List<SummonTypeCount>();
 
-    // ?�력�??�톤�??�량 리스??
     public List<AbilityStoneCount> abilityStoneCounts = new List<AbilityStoneCount>();
 }
 [Serializable]
@@ -89,7 +87,7 @@ public enum Stage
 public class StageBool
 {
     public Stage stage;
-    public bool isFirst = true; // 기본�?true (처음 진입)
+    public bool isFirst = true;
 }
 
 [System.Serializable]
@@ -244,7 +242,6 @@ public class PlayerInfo : MonoBehaviour
 
     public int shield = 0;
 
-    //버프 ?�태 관�?
     private Dictionary<string, float> damagedModifiers = new Dictionary<string, float>();
     private Dictionary<string, float> defenceModifiers = new Dictionary<string, float>();
     private Dictionary<string, float> HPModifiers = new Dictionary<string, float>();
@@ -267,7 +264,7 @@ public class PlayerInfo : MonoBehaviour
     public List<string> playedDialogueEventIds = new List<string>();
     public List<string> dialogueStateFlags = new List<string>();
 
-    private float staminaDecayBuffer = 0f; // 감소 ?�적 버퍼
+    private float staminaDecayBuffer = 0f;
 
     public List<WeaponData> WeaponInventory = new List<WeaponData>(new WeaponData[14]);
     public List<WeaponAbility> weapon_Ability = new List<WeaponAbility>(new WeaponAbility[16]);
@@ -502,7 +499,6 @@ public class PlayerInfo : MonoBehaviour
 
     public void ApplyGraphicsSettings()
     {
-        // 1. ?�상??Resolution) enum 값에 ?�라 ?�제 ?�비(width)?� ?�이(height)�?결정?�니??
         int width = 1920;
         int height = 1080;
 
@@ -522,13 +518,10 @@ public class PlayerInfo : MonoBehaviour
                 break;
         }
 
-        // 2. ?�면 모드(ScreenMode) enum 값에 ?�라 ?�체 ?�면 ?��?�?결정?�니??
         bool isFullScreen = (setting.screenMode == ScreenMode.FullScreen);
 
-        // 3. Unity??Screen.SetResolution API�??�출?�여 ?�정??최종 ?�용?�니??
         Screen.SetResolution(width, height, isFullScreen);
 
-        //////Debug.Log($"그래???�정 ?�용 ?�료: {width}x{height}, ?�체?�면: {isFullScreen}");
     }
 
     public void ApplyDamage(int rawDamage, bool isCritical, GameObject enemy)
@@ -536,46 +529,38 @@ public class PlayerInfo : MonoBehaviour
         // if (playerController.isDead) return;
         EnterCombat();
 
-        // 1. ?�수 ?�킬 처리 (카운???�??/ 반사)
         if (SkillManager.instance.GetSkillData(SkillType.CounterDash).isActive)
         {
-            rawDamage = Mathf.RoundToInt(rawDamage * 0.2f); // ?��?지 80% 경감
+            rawDamage = Mathf.RoundToInt(rawDamage * 0.2f);
             playerSkill.CounterDashAttack(enemy.transform);
         }
 
         if (SkillManager.instance.GetSkillData(SkillType.CounterReflection).isActive)
         {
             playerSkill.CounterReflectionAttack(enemy);
-            return; // 반사 ?�공 ???��?지 처리 종료
+            return;
         }
 
-        // 2. ?�펙??�?초기 ?�팅
         GetComponent<PlayerEffectManager>().PlayEffect(PlayerEffectType.Hit);
         int currentDamage = rawDamage;
 
-        // 3. ?�드 ?�수 ?�산 (주석?��??�드?�는 ?�수 rawDamage가 먼�? 박힙?�다)
         if (shield > 0)
         {
-            // ?�드가 ?�수?????�는 ??계산
             int absorbed = Mathf.Min(shield, currentDamage);
-            ShieldChange(-absorbed);      // ?�드 차감
-            currentDamage -= absorbed;     // ?�드가 막고 ?��? ?��?지 갱신
+            ShieldChange(-absorbed);
+            currentDamage -= absorbed;
         }
 
-        // 4. 체력 ?�해 ?�산 (?��? ?��?지가 ?�을 ?�만 방어?�을 ?�용?�니??
         if (currentDamage > 0)
         {
             int finalHpDamage = CalculateDamageAfterDefense(currentDamage);
 
-            // 최종 ?��?지 감소 ?�시�??�이 ?�다�?GetFinalDamaged?�서 ??�???가�?
             int totalDamageToHp = GetFinalDamaged(finalHpDamage);
 
-            // ?�제 체력 차감 �??�출
             PlayerSoundManager.PlaySound("Hit");
             HpChange(-totalDamageToHp);
             inGameUI.HitEffect();
 
-            // Debug.Log($"[?�해 ?�산] ?�본: {rawDamage} | ?�드 ???��? ?�격?? {currentDamage} | 방어???�용 ??최종 HP ?�해: {totalDamageToHp}");
         }
     }
 
@@ -640,7 +625,6 @@ public class PlayerInfo : MonoBehaviour
         uIManager.UpdateMouseState(false);
         deadCor = null;
 
-        // Boss ?�이�???리로??
         if (BossSceneFlow.IsBossScene(SceneManager.GetActiveScene().name))
         {
             Time.timeScale = 1;
@@ -684,7 +668,7 @@ public class PlayerInfo : MonoBehaviour
     }
     IEnumerator CombatEndTimer()
     {
-        yield return new WaitForSeconds(7f); // ?�투 종료까�? ?��??�간
+        yield return new WaitForSeconds(7f);
         combatEndCoroutine = null;
         SetCombatState(false);
     }
@@ -1064,7 +1048,7 @@ public class PlayerInfo : MonoBehaviour
             LevelUp();
         }
 
-        HandleStaminaDecay(); // ?�태미나 감소 처리
+        HandleStaminaDecay();
     }
 
     public void DebugSetCurrentHpPercent(float percent)
@@ -1262,7 +1246,7 @@ public class PlayerInfo : MonoBehaviour
     {
         OnChangeStatus?.Invoke();
     }
-    public bool GetFinalCriticalChance()// ?�리?�컬 ?��? ?�정: ?�레?�어??최종 치명?� ?�률??백분?�로 계산
+    public bool GetFinalCriticalChance()
     {
         return UnityEngine.Random.value <= (FinalCritical / 100f);
     }
@@ -1289,16 +1273,14 @@ public class PlayerInfo : MonoBehaviour
         foreach (var kvp in damagedModifiers)
         {
             string key = kvp.Key;
-            float amount = kvp.Value; // ?��??�서 준 ?�수??�?(?? 0.15f)
+            float amount = kvp.Value;
 
             if (key.Contains("Buff",StringComparison.OrdinalIgnoreCase))
             {
-                //  버프?�면: 0.2f(20% 증�?)�?-> 배율 1.2f�?계산?�서 곱하�?
                 finalMultiplier *= (1f - amount);
             }
             else
             {
-                //  ?�버?�라�? 0.15f(15% 감소)�?-> 배율 0.85f�??�동 계산?�서 곱하�?
                 finalMultiplier *= (1f + amount);
             }
         }
@@ -1319,7 +1301,6 @@ public class PlayerInfo : MonoBehaviour
     }
     private int GetFinalAttackDMG(int baseDamage)
     {
-        // ?�재 ?�착???�시�?리스?��? ???�음
         float totalPercent = playerController.playerPassiveController.StaticAttackMultiplier;
 
         int staticPlayerAttack = Mathf.RoundToInt(baseDamage * (1f + totalPercent));
@@ -1329,20 +1310,17 @@ public class PlayerInfo : MonoBehaviour
         foreach (var kvp in attackModifiers)
         {
             string key = kvp.Key;
-            float amount = kvp.Value; // ?��??�서 준 ?�수??�?(?? 0.15f)
+            float amount = kvp.Value;
 
             if (key.Contains("Buff", StringComparison.OrdinalIgnoreCase))
             {
-                //  버프?�면: 0.2f(20% 증�?)�?-> 배율 1.2f�?계산?�서 곱하�?
                 finalMultiplier *= (1f + amount);
             }
             else
             {
-                //  ?�버?�라�? 0.15f(15% 감소)�?-> 배율 0.85f�??�동 계산?�서 곱하�?
                 finalMultiplier *= (1f - amount);
             }
         }
-        // 기본 1(100%) + 모인 ?�센??0.15)�?곱함
         return Mathf.RoundToInt(staticPlayerAttack * finalMultiplier);
     }
     public void SetHPModifier(string key, float amount)
@@ -1368,16 +1346,14 @@ public class PlayerInfo : MonoBehaviour
         foreach (var kvp in HPModifiers)
         {
             string key = kvp.Key;
-            float amount = kvp.Value; // ?��??�서 준 ?�수??�?(?? 0.15f)
+            float amount = kvp.Value;
 
             if (key.Contains("Buff", StringComparison.OrdinalIgnoreCase))
             {
-                //  버프?�면: 0.2f(20% 증�?)�?-> 배율 1.2f�?계산?�서 곱하�?
                 externalMuliplier *= (1f + amount);
             }
             else
             {
-                //  ?�버?�라�? 0.15f(15% 감소)�?-> 배율 0.85f�??�동 계산?�서 곱하�?
                 externalMuliplier *= (1f - amount);
             }
         }
@@ -1411,16 +1387,14 @@ public class PlayerInfo : MonoBehaviour
         foreach (var kvp in defenceModifiers)
         {
             string key = kvp.Key;
-            float amount = kvp.Value; // ?��??�서 준 ?�수??�?(?? 0.15f)
+            float amount = kvp.Value;
 
             if (key.Contains("Buff", StringComparison.OrdinalIgnoreCase))
             {
-                //  버프?�면: 0.2f(20% 증�?)�?-> 배율 1.2f�?계산?�서 곱하�?
                 externalMuliplier *= (1f + amount);
             }
             else
             {
-                //  ?�버?�라�? 0.15f(15% 감소)�?-> 배율 0.85f�??�동 계산?�서 곱하�?
                 externalMuliplier *= (1f - amount);
             }
         }
@@ -1444,14 +1418,12 @@ public class PlayerInfo : MonoBehaviour
         {
             int incomingDamage = -value;
 
-            // 무적 ?�태�??�해 무시
             if (playerController.playerPassiveController.IsPassiveInvincible)
             {
                 InvokeOnChangeStatus();
                 return;
             }
 
-            // 죽을 ?�해�?받기 직전 ?�시�?검??
             foreach (var passive in passiveSkillManager.activePassives)
             {
                 if (passive.OnBeforeDamaged(playerController, incomingDamage))
@@ -1523,7 +1495,6 @@ public class PlayerInfo : MonoBehaviour
         ShieldCor = null;
         ShieldRemainTime = 0;
     }
-    // PlayerInfo ?�는 PlayerController ?�에???�태미너 ?�용 ??
     public void UsePlayerStamina(int amount)
     {
         stamina -= amount;
@@ -1535,7 +1506,7 @@ public class PlayerInfo : MonoBehaviour
     public void GainStaminaFromAttack()
     {
         StaminaChange(FinalStaminaGain);
-        lastAttackTime = Time.time; // 마�?�?공격 ?�각 기록
+        lastAttackTime = Time.time;
     }
     public void GainStaminaFromSkill(int value)
     {
@@ -1552,10 +1523,8 @@ public class PlayerInfo : MonoBehaviour
     public void ApplyLoadedData()
     {
 
-        // ?�?�된 ?�탯??존재?�는지 (?? level??0보다 ?��?) ?�인?�여 ?�용?�니??
         if (saveInfo != null)
         {
-            // ?�일???�?�된 Saveplayerstatus???�탯???�레?�어 ?�탯???�용
             setting = saveInfo.setting;
             skillGem = saveInfo.skillGem;
             enhancementStone = saveInfo.enhancementStone;
@@ -1597,12 +1566,10 @@ public class PlayerInfo : MonoBehaviour
             }
 
             Debug.Log($"[PlayerInfo] ApplyLoadedData => level:{level}, exp:{exp}, hp:{currentHP}/{maxHP}, equipWeapon:{equipWeapon}");
-        // ?�?�된 ?�탯???�다�??? level??0) 기존 playerstatus??�?Inspector ??기본�???그�?�??�용?�니??
 
         InvokeOnChangeStatus();
         ApplyGraphicsSettings();
         SkillManager.instance?.RefreshFromPlayerState();
-        // (?�택 ?�항) 즉시 Save()�??�출?�여 ?�일???�설?�된 ?�탯???�?�할 ?�도 ?�습?�다.
         //Save();
     }
 }
@@ -1620,13 +1587,11 @@ public class PlayerInfo : MonoBehaviour
             Vector3 pos = sections.spawnPos.position;
             //sections.ResetMap();
             GetComponent<Rigidbody>().MovePosition(pos);
-            ////////Debug.Log("?�출??+ " + pos);
         }
         /*if (TryGetStageFromScene(currentScene, out Stage stage))
         {
             if (stageCheck.IsFirst(stage))
             {
-                // �?진입
                 GameObject spawnObj = GameObject.Find("PlayerSpawnPos");
                 if (spawnObj != null)
                 {
@@ -1649,14 +1614,13 @@ public class PlayerInfo : MonoBehaviour
                         Vector3 pos = sec.spawnPos.position;
                         sec.ResetMap();
                         GetComponent<Rigidbody>().MovePosition(pos);
-                        break; // 찾으�?반복 중단 (?�러 개면 ?��? ?�인?�고 ?�으�?break ?�거)
+                        break;
                     }
                 }
             }
         }
         else
         {
-            // 매칭 ???�을 경우 기본 ?�치
             GameObject spawnObj = GameObject.Find("PlayerSpawnPos");
             if (spawnObj != null)
             {
@@ -1840,5 +1804,4 @@ public static class SecureJson
         return keyBytes;
     }
 }
-
 

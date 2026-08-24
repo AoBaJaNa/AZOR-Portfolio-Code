@@ -8,7 +8,7 @@ public class PaganFleeState : EnemyBaseState
 
     public override void Enter()
     {
-        // 1. ���� ��� �ൿ ��� �ߴ�
+        // 1. 기존 모든 행동 즉시 중단
         enemyClass.enemyController.StopAllMovementCoroutines();
         enemyClass.enemyAttack.AttackReset();
         enemyClass.enemyController.FleeFromTarget();
@@ -29,8 +29,7 @@ public class PaganFleeState : EnemyBaseState
     }
     public override void Exit()
     {
-        // ���� ���̴� �̵� ����
-        enemyClass.enemyController.IsFleeing = false; // �÷��� �ʱ�ȭ
+        // 도망 중이던 이동 멈춤
+        enemyClass.enemyController.IsFleeing = false; // 플래그 초기화
     }
 }
-
