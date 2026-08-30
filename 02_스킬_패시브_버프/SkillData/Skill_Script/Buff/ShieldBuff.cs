@@ -29,7 +29,6 @@ public class ShieldBuff : SkillData
 
         if (PlayerInfo.Instance == null)
         {
-            //Debug.LogWarning("PlayerInfo.Instance가 존재하지 않습니다.");
             yield break;
         }
         player.playerSkill.StartCoroutine(player.playerSkill.ISSkill(YieldInstructionCache.GetWait(0.7f)));

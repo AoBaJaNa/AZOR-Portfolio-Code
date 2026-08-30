@@ -36,7 +36,6 @@ public class SkillManager : MonoBehaviour
     public GameObject skill_Window;
     public GameObject rune_Window;
     [Header("Skill Unlock Settings")]
-    // 인스펙터에서 각 스킬을 개별로 설정할 수 있습니다.
     public SkillUnlock[] skillUnlocks;
     public GameObject newSkill;
     public VideoPlayer videoPlayer;
@@ -127,20 +126,17 @@ public class SkillManager : MonoBehaviour
                 skill.activated = false;
             }
         }
-        //초기 세팅
         foreach (var data in SkillData)
         {
             if (data == null) continue;
 
-            // 🎯 핵심 방어막: 딕셔너리에 이미 이 스킬 타입이 들어가 있는지 검사합니다.
             if (!skillDictionary.ContainsKey(data.skillType))
             {
                 skillDictionary.Add(data.skillType, data);
             }
             else
             {
-                // 중복된 녀석이 발견되면 어떤 SO 파일이 범인인지 콘솔창에 노란색 경고로 알려줍니다.
-                Debug.LogWarning($"⚠️ [SkillManager] 중복된 스킬 타입({data.skillType})을 가진 에셋 발견! 패스합니다. 에셋 파일명: {data.name}");
+                Debug.LogWarning($"SkillManager: duplicate skill type '{data.skillType}' in asset '{data.name}'.");
             }
         }
 
@@ -283,56 +279,44 @@ public class SkillManager : MonoBehaviour
         var locationHandle = Addressables.LoadResourceLocationsAsync("DoubleSkill");
         IList<IResourceLocation> locations = await locationHandle.Task;
 
-        // 1. [디버깅 반영] 에셋 주소에서 순수 파일 이름만 추출하거나 키값 그대로 저장
         HashSet<string> doubleSkillKeys = new HashSet<string>();
         foreach (var loc in locations)
         {
-            // PrimaryKey가 "Assets/Paths/MySkill.asset" 형태일 수 있으므로 파일 이름만 땁니다.
             string pureName = System.IO.Path.GetFileNameWithoutExtension(loc.PrimaryKey);
             doubleSkillKeys.Add(pureName);
-
-            // 혹시 주소 이름을 파일명과 다르게 직접 커스텀 하셨을 경우를 대비해 원본 키도 같이 등록
             doubleSkillKeys.Add(loc.PrimaryKey);
         }
 
-        // 2. 딕셔너리 안전성 검사
         if (skillDictionary == null || skillDictionary.Count == 0)
         {
-            Debug.LogWarning("⚠️ [DoubleSkillPreload] skillDictionary가 비어있어 로드를 진행하지 못했습니다.");
+            Debug.LogWarning("SkillManager: double-skill preload skipped because the skill cache is empty.");
             Addressables.Release(locationHandle);
             return;
         }
 
-        // 3. 메모리에 있는 스킬들 순회
         foreach (SkillData skill in skillDictionary.Values)
         {
             if (skill == null) continue;
 
             string skillKey = skill.name;
 
-            // 이제 파일 이름 기반으로 확실하게 해시셋 검색이 가능합니다!
             if (doubleSkillKeys.Contains(skillKey))
             {
                 if (value)
                 {
-                    Debug.Log($"🎯 [DoubleSkillPreload] {skill.name} 프리폼 데이터 로드 시작");
-                    // 💡 await를 걸어주어 이 스킬의 프리프 로드가 끝날 때까지 순차 대기합니다.
                     await skill.PreloadPrefabData();
                 }
                 else
                 {
-                    Debug.Log($"♻️ [DoubleSkillPreload] {skill.name} 프리폼 데이터 해제 완료");
                     skill.ReleasePrefabData();
                 }
             }
         }
 
-        // 핸들 해제
         Addressables.Release(locationHandle);
     }
     public SkillData GetSkillData(SkillType type)
     {
-        // 이제 foreach 안 돌고 바로 꺼내옵니다 (O(1) 성능)
         if (skillDictionary.TryGetValue(type, out SkillData data))
         {
             return data;
@@ -397,7 +381,7 @@ public class SkillManager : MonoBehaviour
         }
     }
     /// <summary>
-    /// 현재 레벨 기준으로 잠금 해제 가능한 스킬들을 체크합니다.
+    /// 현재 레벨에서 해금 가능한 스킬을 반영한다.
     /// </summary>
     public void CheckUnlockableSkills()
     {
@@ -421,7 +405,6 @@ public class SkillManager : MonoBehaviour
                 if (skill.locked != null)
                 {
                     activeSkill.Add(skill);
-                    ////Debug.Log($"{skill.skillData.unlockLevel}레벨에 도달 - 스킬 오브젝트 활성화됨");
                 }
             }
         }
@@ -469,7 +452,6 @@ public class SkillManager : MonoBehaviour
                 if (!PlayerInfo.Instance.learnedSkills.Contains(skillName))
                 {
                     PlayerInfo.Instance.learnedSkills.Add(skillName);
-                    //Debug.Log($"스킬 습득 완료: {skillName}");
                 }
                 // 스킬 활성화
                 if (skill.skillObject != null)
@@ -505,7 +487,6 @@ public class SkillManager : MonoBehaviour
                     if (skill.locked != null)
                     {
                         activeSkill.Add(skill);
-                        //Debug.Log($"[시작 시 적용] 배운 스킬 활성화: {skill.skillData.skillType.ToString()}");
                     }
                 }
             }
@@ -547,15 +528,13 @@ public class SkillManager : MonoBehaviour
         OnChangeSkill = null;
     }
 #if UNITY_EDITOR
-    // 💡 에디터 버튼이 누를 실제 로직 함수
     public void RefreshAllSkillDataInEditor()
     {
-        // 🔥 [설정] 스킬 데이터 에셋들이 저장되어 있는 폴더 경로를 적어주세요.
         string assetFolderPath = "Assets/AddressableAsset/SkillData";
 
         if (!System.IO.Directory.Exists(assetFolderPath))
         {
-            Debug.LogError($"❌ [SkillManager] 경로를 찾을 수 없습니다: {assetFolderPath}");
+            Debug.LogError($"SkillManager: asset folder not found. path={assetFolderPath}");
             return;
         }
 
@@ -581,7 +560,7 @@ public class SkillManager : MonoBehaviour
         SkillData = foundSkills;
         UnityEditor.EditorUtility.SetDirty(this);
 
-        Debug.Log($"🎯 [SkillManager] {foundSkills.Count}개의 스킬 데이터를 인스펙터에 자동 등록했습니다!");
+        Debug.Log($"SkillManager: registered {foundSkills.Count} skill assets in the inspector.");
     }
 #endif
 }

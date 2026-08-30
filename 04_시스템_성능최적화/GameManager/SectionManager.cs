@@ -734,7 +734,6 @@ public class SectionManager : MonoBehaviour
         staticStageExpBaseReward = remainingExpToLevel / enemyCount;
         staticStageExpRemainder = remainingExpToLevel % enemyCount;
 
-        Debug.Log($"[SectionManager] Assigned static stage EXP => level:{currentLevel}, targetExp:{remainingExpToLevel}, enemyCount:{enemyCount}, base:{staticStageExpBaseReward}, remainder:{staticStageExpRemainder}");
     }
 
     public void NotifyStaticExpGranted(int amount)

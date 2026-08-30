@@ -260,14 +260,10 @@ public class PlayerCamera : MonoBehaviour
 
     IEnumerator RunHaptics(float low, float high, float duration)
     {
-        // 1. 진동 시작
-        // SetMotorSpeeds(저주파 강도, 고주파 강도)
         currentGamepad.SetMotorSpeeds(low, high);
 
-        // 2. 지정된 시간만큼 대기
         yield return new WaitForSeconds(duration);
 
-        // 3. 진동 멈춤
         StopHaptics();
     }
 

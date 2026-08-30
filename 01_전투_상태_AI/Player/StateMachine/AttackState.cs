@@ -12,10 +12,8 @@ public class AttackState : BaseState
     }
     public override void Enter()
     {
-        player.CheckState();
         if (SkillData != null)
         {
-            //Debug.Log(SkillData.skillType.ToString());
             if (!player.playerSkill.TryUseSkill(SkillData))
                 stateMachine.ChangeState(player.MoveState);
         }

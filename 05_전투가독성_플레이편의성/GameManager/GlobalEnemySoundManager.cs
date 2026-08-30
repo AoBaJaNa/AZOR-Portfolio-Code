@@ -112,7 +112,6 @@ public class GlobalEnemySoundManager : MonoBehaviour
 
         AudioSource freeSource = null;
 
-        // 1. try to find a free audio source
         foreach (var src in pool)
         {
             if (!src.isPlaying)
@@ -122,7 +121,6 @@ public class GlobalEnemySoundManager : MonoBehaviour
             }
         }
 
-        // 2. if no free source exists, pick the oldest one
         if (freeSource == null)
         {
             float oldestTime = float.MaxValue;

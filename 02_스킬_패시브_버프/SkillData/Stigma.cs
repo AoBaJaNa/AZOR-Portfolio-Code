@@ -32,7 +32,7 @@ public class Stigma : MonoBehaviour
     private PlayerPassiveController passiveController;
     public bool IsMaxStack => so != null && stigma_Stack >= so.maxStigma_Stack;
     private bool _CloseGateAfterMaxStack = true; // 문을 닫아야 하는 스킬이 있는지 체크용
-    private bool Active_MaxStack = true; // 기본값을 true로 시작하는 게 안전합니다.
+    private bool Active_MaxStack = true;
 
     private HashSet<PassiveSkillType> registeredMaxStackTriggers = new();
     private void Awake()
@@ -56,11 +56,9 @@ public class Stigma : MonoBehaviour
 
     public void AddStigmaStack(int count)
     {
-        //  [방어막] 데이터 파일이 아직 안 들어왔다면 에러 방지를 위해 실행하지 않습니다.
         if (so == null) return;
 
         stigma_Stack = Mathf.Min(stigma_Stack + count, so.maxStigma_Stack);
-        Debug.Log($"[PassiveDebug][Stigma] {gameObject.name} stack +{count} => {stigma_Stack}/{so.maxStigma_Stack}");
 
         if (durationCoroutine != null)
         {
@@ -83,7 +81,6 @@ public class Stigma : MonoBehaviour
         }
 
         registeredMaxStackTriggers.Add(type);
-        Debug.Log($"[PassiveDebug][Stigma] {gameObject.name} max stack trigger registered: {type}");
         
         TriggerOnMaxStack -= action;
         TriggerOnMaxStack += action;
@@ -94,39 +91,9 @@ public class Stigma : MonoBehaviour
 
     private void ExecuteOnMaxStack()
     {
-        //PrintTriggerNames();
-        Debug.Log($"[PassiveDebug][Stigma] {gameObject.name} reached max stack. Trigger count={registeredMaxStackTriggers.Count}");
         TriggerOnMaxStack?.Invoke();
         if (maxStackLoopCoroutine != null) StopCoroutine(maxStackLoopCoroutine);
         maxStackLoopCoroutine = StartCoroutine(MaxStackLoop());
-    }
-    public void PrintTriggerNames()
-    {
-        // 1. 만약 Action에 등록된 함수가 아예 없다면(null) 안내문 출력
-        if (TriggerOnMaxStack == null)
-        {
-            Debug.LogWarning($"[디버그] {gameObject.name}의 TriggerOnMaxStack에 등록된 함수가 아무것도 없습니다 (null)");
-            return;
-        }
-
-        // 2. Action 안에 조립된 함수 전표(Invocation List)를 통째로 가져옵니다.
-        Delegate[] invocationList = TriggerOnMaxStack.GetInvocationList();
-
-        Debug.LogWarning($"====== 🎯 [디버그: {gameObject.name}] 현재 등록된 함수 목록 (총 {invocationList.Length}개) ======");
-
-        for (int i = 0; i < invocationList.Length; i++)
-        {
-            // 각 대리자가 가리키고 있는 실제 함수(Method) 정보 추출
-            var methodInfo = invocationList[i].Method;
-
-            // 함수가 소속된 클래스(스크립트) 이름과 실제 함수명을 가독성 있게 조립
-            string className = methodInfo.DeclaringType != null ? methodInfo.DeclaringType.Name : "UnknownClass";
-            string methodName = methodInfo.Name;
-
-            Debug.Log($"   [{i}] 소속 클래스: {className} | ➡️ 함수명: {methodName}");
-        }
-
-        Debug.LogWarning("=============================================================");
     }
     private IEnumerator StackDurationLoop()
     {
@@ -142,7 +109,7 @@ public class Stigma : MonoBehaviour
         }
 
         durationCoroutine = null;
-        ResetStigma(); //  스크립트를 파괴하지 않고 데이터만 리셋합니다!
+        ResetStigma();
     }
     public void UseStack(int count)
     {
@@ -175,7 +142,6 @@ public class Stigma : MonoBehaviour
         {
             stigma_Stack = so.maxStigma_Stack; // 오버플로우 방지 고정
 
-            Debug.Log($"[PassiveDebug][Stigma] {gameObject.name} is at max stack {stigma_Stack}");
 
             if(Active_Lord_of_Penance)
                 Lord_of_Penance();
@@ -207,10 +173,8 @@ public class Stigma : MonoBehaviour
         Echoes_Of_Agony_Multiplier = multiplier;
     }
 
-    // [개조] 스크립트를 파괴(Destroy)하는 대신 값만 0으로 비워두고 재사용합니다.
     public void ResetStigma()
     {
-        Debug.Log($"[PassiveDebug][Stigma] ResetStigma {gameObject.name}");
         if (durationCoroutine != null) { StopCoroutine(durationCoroutine); durationCoroutine = null; }
         if (maxStackLoopCoroutine != null) { StopCoroutine(maxStackLoopCoroutine); maxStackLoopCoroutine = null; }
        
@@ -253,7 +217,6 @@ public class Stigma : MonoBehaviour
     public void Contagious_Sin()
     {
         int hitCount = Physics.OverlapSphereNonAlloc(transform.position, 7f, searchStigmas, targetMask);
-        Debug.Log($"[PassiveDebug][Stigma] Contagious_Sin from {gameObject.name}, nearby targets={hitCount}, sourceStack={stigma_Stack}");
 
         for (int i = 0; i < hitCount; i++)
         {
@@ -278,7 +241,6 @@ public class Stigma : MonoBehaviour
     {
         UseStack(stigma_Stack);
         int DamageValue = Mathf.RoundToInt(PlayerInfo.Instance.FinalAttackDamage * Lord_of_Penance_Ratio);
-        Debug.Log($"[PassiveDebug][Stigma] Lord_of_Penance triggered on {gameObject.name}, damage={DamageValue}");
         enemyClass.TakeDamage(DamageValue, PlayerInfo.Instance.GetFinalCriticalChance());
     }
     public void ActiveAbyssal_Elegy(float max, float stack20, float stack10, float stack1)
@@ -295,7 +257,6 @@ public class Stigma : MonoBehaviour
     public void Abyssal_Elegy()
     {
         int hitCount = Physics.OverlapSphereNonAlloc(transform.position, 7f, searchStigmas, targetMask);
-        Debug.Log($"[PassiveDebug][Stigma] Abyssal_Elegy from {gameObject.name}, nearby targets={hitCount}, currentStack={stigma_Stack}");
         for (int i = 0; i < hitCount; i++)
         {
             Collider enemy = searchStigmas[i];
@@ -322,7 +283,6 @@ public class Stigma : MonoBehaviour
     }
     public void StigmaHandleDeath()
     {
-        Debug.Log($"[PassiveDebug][Stigma] {gameObject.name} died with stack={stigma_Stack}, contagious={Active_Contagious_Sin}, elegy={Active_Abyssal_Elegy}");
         Active_MaxStack = false;
         TriggerOnMaxStack = null; // 대리자 비우기
         if (Active_Contagious_Sin)

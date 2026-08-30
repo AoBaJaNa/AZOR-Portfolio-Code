@@ -659,9 +659,6 @@ public class EnemyClass : MonoBehaviour
         expReward = Mathf.Max(0, value);
     }
     
-    public void CheckCurrentState() {
-       //Debug.Log(StateMachine.CurrentState.ToString());
-    }
     public virtual void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent(out SkillData_Colider skillCol))

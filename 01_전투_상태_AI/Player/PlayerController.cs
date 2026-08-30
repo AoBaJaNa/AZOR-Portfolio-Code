@@ -102,14 +102,6 @@ public class PlayerController : MonoBehaviour
         playerMovement.Initialize();
     }
 
-    public void CheckState()
-    {
-        //Debug.Log(StateMachine.CurrentState.ToString());
-    }
-    public void CheckLogic(string text)
-    {
-        ////Debug.Log(text);
-    }
     public void OnMoveInput(InputAction.CallbackContext context)
     {
         if (!HasReadyStateMachine())
@@ -151,7 +143,6 @@ public class PlayerController : MonoBehaviour
             isAFK = true;
             animator.SetFloat("AFKIndex", Random.Range(0,2));
             animator.SetBool("AFK", isAFK);
-            ////Debug.Log("AFK 상태");
         }
         StateMachine.Update();
     }

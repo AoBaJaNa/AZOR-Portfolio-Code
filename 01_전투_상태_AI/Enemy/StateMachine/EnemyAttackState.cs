@@ -8,7 +8,6 @@ public class EnemyAttackState : EnemyBaseState
     public EnemyAttackState(EnemyClass enemyClass, StateMachine<EnemyBaseState> state) : base(enemyClass,state){}
     public override void Enter()
     {
-        enemyClass.CheckCurrentState();
         if(target != null)
         enemyClass.enemyAttack.StartAttack(target);
     }
