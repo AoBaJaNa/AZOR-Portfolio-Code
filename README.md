@@ -2,9 +2,9 @@
 
 AZOR에서 직접 구현한 Unity C# 핵심 코드 중 전투·AI, 스킬·패시브, Addressables, 성능 최적화, 전투 가독성 사례를 선별한 코드 포트폴리오입니다.
 
-## 01. 전투 상태·AI 구조
+## 01. 다양한 적·보스 패턴을 확장한 전투 상태·AI
 
-Notion: https://app.notion.com/p/3a674e134c7980e1a830d84ca4e141d1
+Notion: https://app.notion.com/p/3cc74e134c79808eadc7db1d540a739e
 
 - StateMachine.cs, BaseState.cs, MoveState.cs, AttackState.cs: 플레이어 상태 수명주기와 전이
 - PlayerController.cs: 입력을 현재 상태로 전달하는 중심 Controller
@@ -12,7 +12,7 @@ Notion: https://app.notion.com/p/3a674e134c7980e1a830d84ca4e141d1
 - EnemyIdleState.cs, EnemyAttackState.cs, EnemyStunState.cs, EnemyDeathState.cs: 일반 적 상태 구현
 - PaganFleeState.cs, BossCombatState.cs: 적 종류별 확장 사례
 
-## 02. 스킬·패시브·버프 확장 구조
+## 02. 신규 콘텐츠를 공통 수정 없이 추가한 스킬·패시브 구조
 
 Notion: https://app.notion.com/p/3a374e134c79817aac82c2a0d6d3e821
 
@@ -30,7 +30,7 @@ Notion: https://app.notion.com/p/3a374e134c7981929c36cab8044781dd
 - LoadingScene.cs: 캐시 진행 이벤트 구독과 씬 진입 제어
 - GameManager.cs: 캐시 준비 여부를 확인하는 실제 소비 지점
 
-## 04. 시스템 성능 최적화
+## 04. Draw Call과 전투 피크를 분리해 개선한 시스템 최적화
 
 Notion: https://app.notion.com/p/3a474e134c79813e8147e7ad7c816e39
 
@@ -48,4 +48,3 @@ Notion: https://app.notion.com/p/3a474e134c7981ceb0f5eb170f4e49f0
 - PlayerCamera.cs, WallClipping.cs: 벽 감지, 페이드, 시야 복구
 - CombatFeedbackTypes.cs, SkillData.cs: 데이터 기반 타격 피드백 요청
 - EnemyClass.cs, EnemyController.cs, InGameUI.cs: 피격 반응·카메라·Hit Stop 분배 및 제한
-
