@@ -4,7 +4,7 @@ AZOR에서 직접 구현한 Unity C# 핵심 코드 중 전투·AI, 스킬·패�
 
 ## 01. 다양한 적·보스 패턴을 확장한 전투 상태·AI
 
-Notion: https://app.notion.com/p/3cc74e134c79808eadc7db1d540a739e
+Notion: https://app.notion.com/p/3a674e134c7980e1a830d84ca4e141d1
 
 - StateMachine.cs, BaseState.cs, MoveState.cs, AttackState.cs: 플레이어 상태 수명주기와 전이
 - PlayerController.cs: 입력을 현재 상태로 전달하는 중심 Controller
