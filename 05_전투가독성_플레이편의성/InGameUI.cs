@@ -155,7 +155,7 @@ public class InGameUI : MonoBehaviour
         PlayerInfo.OnChangeStatus += StatusChange;
         PlayerInfo.OnProfileLoaded += StatusChange;
        Inventory.OnChangeInventory += StatusChange;
-        targetHPUI.gameObject.SetActive(false); 
+        targetHPUI.gameObject.SetActive(false);
         buffSkillSlot = buffSkillUI.GetComponentsInChildren<Image>();
         for (int i = 0; i < buffSlots.Length; i++)
         {
@@ -234,7 +234,6 @@ public class InGameUI : MonoBehaviour
 
     void OnDestroy()
     {
-        // 혹시라도 파괴될 때 이벤트 구독 제거
         PlayerInfo.OnChangeStatus -= StatusChange;
         PlayerInfo.OnProfileLoaded -= StatusChange;
        Inventory.OnChangeInventory -= StatusChange;
@@ -306,7 +305,6 @@ public class InGameUI : MonoBehaviour
         }
 
         // 슬롯 다 찼을 때 처리 (선택)
-        //Debug.Log("Buff slots full");
     }
     void StartBuff(int index, SkillData data, float duration, BuffDisplayMode displayMode)
     {
@@ -426,7 +424,7 @@ public class InGameUI : MonoBehaviour
 
         slot.icon.sprite = null;
         slot.icon.fillAmount = 0f;
-        slot.icon.gameObject.SetActive(false);   // ★ 핵심
+        slot.icon.gameObject.SetActive(false);
 
         slot.routine = null;
         slot.remainingTime = 0f;
@@ -536,7 +534,7 @@ public class InGameUI : MonoBehaviour
     void ShakeBar()
     {
         if (HPRectTransform == null || MPRectTransform == null)
-            return; // 안전하게 빠져나가기
+            return;
 
         // 경계선 부분만 흔들리는 애니메이션
         float shakeX = Mathf.Cos(Time.time * shakeSpeed) * shakeAmount;
@@ -688,7 +686,6 @@ public class InGameUI : MonoBehaviour
             diaName.text = presentation.speakerName;
             diaName.gameObject.SetActive(presentation.showName);
 
-            // 1. 타이핑 효과 시작 (Skip 기능을 위해 Coroutine 변수에 담음)
             Coroutine typingRoutine = StartCoroutine(TypeSentence(presentation.contents));
 
             bool skipTyping = false;
@@ -696,24 +693,21 @@ public class InGameUI : MonoBehaviour
             float timer = 0f;
             bool next = false;
 
-            // 2. 타이핑 도중 클릭하면 즉시 전체 출력
             while (diacontent.text != presentation.contents)
             {
                 if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
                 {
                     StopCoroutine(typingRoutine);
-                    diacontent.text = presentation.contents; // 즉시 전체 대사 표시
+                    diacontent.text = presentation.contents;
                     skipTyping = true;
                     break;
                 }
                 yield return null;
             }
 
-            // 대사 출력 후 잠깐 대기 (실수 방지)
             if (!skipTyping) yield return YieldInstructionCache.GetWait(0.1f);
-            else yield return YieldInstructionCache.GetWait(0.2f); // 스킵했을 땐 조금 더 대기
+            else yield return YieldInstructionCache.GetWait(0.2f);
 
-            // 3. 대사 완료 후 다음으로 넘어가기 대기
             while (!next)
             {
                 timer += Time.deltaTime;

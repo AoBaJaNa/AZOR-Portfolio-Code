@@ -548,25 +548,20 @@ public class PlayerSkill : MonoBehaviour
         PlayerSoundManager.PlaySound("CounterDash");
         StartCoroutine(ISSkill(YieldInstructionCache.GetWait(skill.counterDashDuration)));
 
-        // 1) 올바른 방향 계산
         Vector3 dir = enemy.position - transform.position;
         dir.y = 0;
 
-        // 2) 올바르게 회전
         transform.rotation = Quaternion.LookRotation(dir);
 
-        // 3) 대쉬
         playerCombat.DashSlash(skill.counterDashLenght,
                                    skill.counterDashDuration,
                                    dir.normalized);
 
-        // 4) 이펙트 생성 (이제 방향 안 틀림)
         GameObject effect = EffectPoolManager.Instance.GetFromPool(skill.skilIPrefab,
                                         counterDashSpawnPoint.position,
                                         counterDashSpawnPoint.rotation);
 
 
-        // 5) 공격 판정
         counterDashCollider.enabled = true;
         yield return YieldInstructionCache.GetWait(skill.counterDashDuration);
         counterDashCollider.enabled = false;
@@ -631,7 +626,7 @@ public class PlayerSkill : MonoBehaviour
         SkillData skill = skillManager.GetSkillData(SkillType.ShadowRecall);
 
         if (positionHistory == null || positionHistory.Count == 0)
-            yield break; // 기록이 없으면 바로 종료
+            yield break;
 
         isRecording = false;
         isRewinding = true;
@@ -669,7 +664,6 @@ public class PlayerSkill : MonoBehaviour
     {
         enemy.SkillDamaged(skillType);
         enemy.Stun(duration);
-        // 필요 시 스턴 종료 후 추가 로직
     }
 
     #region DoubleHit
@@ -690,13 +684,11 @@ public class PlayerSkill : MonoBehaviour
 
         StartCoroutine(DoubleSkillExcute(data));
     }
-    // 자식 타입(T)으로 안전하게 변환해서 코루틴을 실행해주는 도우미
     private void RunDoubleSkill<T>(SkillType type, System.Func<T, IEnumerator> routine) where T : SkillData
     {
         T data = SkillManager.instance.GetSkillData(type) as T;
         if (data != null)
         {
-            Debug.Log(data.skillType);
             StartCoroutine(routine(data));
         }
     }
@@ -706,7 +698,6 @@ public class PlayerSkill : MonoBehaviour
         {
             case SkillType.RoundSlash:
                 yield return YieldInstructionCache.GetWait(0.25f);
-                // RunDoubleSkill<자식타입>(데이터타입, 실행할코루틴)
                 RunDoubleSkill<RoundSlash_Double>(SkillType.RoundSlash_Double, DoubleRoundSlash);
                 break;
 
@@ -754,7 +745,6 @@ public class PlayerSkill : MonoBehaviour
                 break;
         }
 
-        // 공통으로 실행되는 이벤트는 switch 밖으로 빼면 중복 코드가 사라집니다!
         OnSkillUsed?.Invoke();
         yield return null;
     }
@@ -764,16 +754,10 @@ public class PlayerSkill : MonoBehaviour
 
         PlayerSoundManager.PlaySound("RoundSlash");
 
-        // 2. 이펙트 생성 및 파괴 로직
         GameObject effect = EffectPoolManager.Instance.GetFromPool(skill.skilIPrefab, roundSlashSpawnPoint.position, roundSlashSpawnPoint.rotation);
-        // 파티클이면 재생 시간 기반으로 삭제
-
-
-        // 3. 스킬 상태 제어
         StartCoroutine(ISSkill(YieldInstructionCache.GetWait(0.33f)));
         StartTimedCombatCollisionIgnore(0.22f);
 
-        // 4. 콜라이더 설정 (자식인 RoundSlash에만 있는 roundSlashRadius 접근)
         double_roundSlashCollider.radius = skill.roundSlashRadius;
         double_roundSlashCollider.enabled = true;
 
@@ -834,7 +818,6 @@ public class PlayerSkill : MonoBehaviour
     {
         if (SkillManager.instance.GetSkillData(SkillType.JumpLanding).isActive) yield break;
 
-        // 시각적 효과 예시 (필요 시)
 
         GameObject effect = EffectPoolManager.Instance.GetFromPool(skill.skilIPrefab, pierceSlashSpawnPoint.position, pierceSlashSpawnPoint.rotation);
         effect.transform.SetParent(null);
@@ -855,21 +838,16 @@ public class PlayerSkill : MonoBehaviour
 
         PlayerSoundManager.PlaySound("CounterDash");
 
-            // 1) 올바른 방향 계산
             Vector3 dir = enemy.position - transform.position;
             dir.y = 0;
 
-            // 2) 올바르게 회전
             transform.rotation = Quaternion.LookRotation(dir);
 
-
-            // 3) 이펙트 생성 (이제 방향 안 틀림)
             GameObject effect = EffectPoolManager.Instance.GetFromPool(skill.skilIPrefab,
                                             counterDashSpawnPoint.position,
                                             counterDashSpawnPoint.rotation);
 
 
-            // 5) 공격 판정
             double_counterDashCollider.enabled = true;
         yield return YieldInstructionCache.GetWait(skill.counterDashDuration);
             double_counterDashCollider.enabled = false;
@@ -905,10 +883,8 @@ public class PlayerSkill : MonoBehaviour
     }
     private IEnumerator DoubleCrossSlash(CrossSlash skill)
     {
-        Debug.Log(skill.skillType);
         if (SkillManager.instance.GetSkillData(SkillType.JumpLanding).isActive) yield break;
 
-        // 시각적 효과 예시 (필요 시)
         PlayerSoundManager.PlaySound("CrossSlash");
 
         StartCoroutine(ISSkill(YieldInstructionCache.GetWait(0.5f)));
@@ -954,10 +930,8 @@ public class PlayerSkill : MonoBehaviour
         
 
         double_dashSlashCollider.enabled = true;
-        ////Debug.Log("켜짐");
         yield return YieldInstructionCache.GetWait(skill.dashSlashColliderDuration);
         double_dashSlashCollider.enabled = false;
-        ////Debug.Log("꺼짐");
         skill.isActive = false;
     }
     private IEnumerator DoubleSwordCrash(SwordCrash skill)

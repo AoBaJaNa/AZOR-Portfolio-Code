@@ -244,29 +244,20 @@ public abstract class SkillData : ScriptableObject
 
     public async Task PreloadPrefabData()
     {
-        // 1. [가장 중요] 메인 스킬 프리랩 주소가 비어있거나 유효하지 않다면 로드 자체를 원천 차단
         if (skillPrefab_address == null || string.IsNullOrEmpty(skillPrefab_address.AssetGUID) || !skillPrefab_address.RuntimeKeyIsValid())
-        {
-            // 프리랩이 없는 스킬(예: 단순 버프 등)은 에러 없이 조용히 넘어갑니다.
             return;
-        }
 
-        // 2. 이미 로드되어 메모리에 들어와 있다면 중복 로드 방지
         if (skilIPrefab != null)
-        {
             return;
-        }
 
         try
         {
-            //메인 프리랩 로드 (Addressables 전역 매니저 사용으로 동시 호출 안전성 확보)
             var prefabHandle = Addressables.LoadAssetAsync<GameObject>(skillPrefab_address);
             skilIPrefab = await prefabHandle.Task;
 
             if(SoundAsset !=null)
             SoundAsset.PreloadSound();
 
-            // 서브 프리랩(Active 스킬 프리랩)이 인스펙터에 등록되어 있을 때만 안전하게 로드
             if (activeSkilIPrefab_address != null &&
                 !string.IsNullOrEmpty(activeSkilIPrefab_address.AssetGUID) &&
                 activeSkilIPrefab_address.RuntimeKeyIsValid())
@@ -277,7 +268,7 @@ public abstract class SkillData : ScriptableObject
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[{name}] 프리랩 로드 중 예외가 발생했으나 안전하게 처리됨: {e.Message}");
+            Debug.LogWarning($"SkillData: failed to preload prefab for '{name}'. {e.Message}");
         }
     }
     public void PreloadIconData()
@@ -316,11 +307,9 @@ public abstract class SkillData : ScriptableObject
     {
         string targetName = skillType.ToString();
 
-        // 현재 파일 이름과 설정하려는 skillType의 이름이 다를 때만 실행
         if (name != targetName)
         {
-            //  OnValidate 안에서 즉시 바꾸지 않고, 딜레이 콜 대기열에 등록합니다.
-            // 이미 등록되어 있을지 모르니 안전하게 한 번 빼주고 더합니다.
+            // OnValidate 중 직접 이름을 변경하지 않고 에디터 대기열에서 처리한다.
             UnityEditor.EditorApplication.delayCall -= SafeRenameAsset;
             UnityEditor.EditorApplication.delayCall += SafeRenameAsset;
         }
@@ -328,22 +317,18 @@ public abstract class SkillData : ScriptableObject
 
     private void SafeRenameAsset()
     {
-        // 💡 중요: 실행되자마자 대기열에서 즉시 제거하여 무한 루프나 중복 실행을 막습니다.
         UnityEditor.EditorApplication.delayCall -= SafeRenameAsset;
 
-        // 이 메서드가 실행되는 시점에는 이미 이 Object가 완전히 파괴되었거나 null일 수 있으므로 안전장치를 둡니다.
         if (this == null) return;
 
         string targetName = skillType.ToString();
         string assetPath = UnityEditor.AssetDatabase.GetAssetPath(this);
 
-        // 경로가 정상적으로 존재할 때만 이름 변경 실행
         if (!string.IsNullOrEmpty(assetPath) && name != targetName)
         {
             UnityEditor.AssetDatabase.RenameAsset(assetPath, targetName);
             UnityEditor.AssetDatabase.SaveAssets();
 
-            // 프리랩이나 프로젝트 창이 바로 안 바뀐 것처럼 보일 수 있으므로 포커스를 새로고침해줍니다.
             UnityEditor.AssetDatabase.Refresh();
         }
     }

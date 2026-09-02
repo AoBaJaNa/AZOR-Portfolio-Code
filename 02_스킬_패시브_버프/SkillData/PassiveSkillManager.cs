@@ -91,7 +91,6 @@ public class PassiveSkillManager : MonoBehaviour
 
     public void LearnSkill(PassiveSkillData skillData)
     {
-        // 1. 스킬 데이터 존재 여부 확인
         PassiveSkillData targetSkill = GetPassiveData(skillData.skillType);
 
 
@@ -104,14 +103,12 @@ public class PassiveSkillManager : MonoBehaviour
             return;
         }
 
-        // 2. 이미 장착되어 있는지 확인
         for (int i = 0; i < PlayerInfo.Instance.equipPassiveSkill.Length; i++)
         {
             if (PlayerInfo.Instance.equipPassiveSkill[i] == skillData.skillType.ToString())
                 return;
         }
 
-        // 3. 빈 슬롯에 추가
         for (int i = 0; i < PlayerInfo.Instance.equipPassiveSkill.Length; i++)
         {
             if (string.IsNullOrEmpty(PlayerInfo.Instance.equipPassiveSkill[i]))
@@ -155,9 +152,6 @@ public class PassiveSkillManager : MonoBehaviour
 
     public void UpdatePassiveEvents()
     {
-        Debug.Log(PlayerInfo.Instance);
-        Debug.Log(passive_List);
-        Debug.Log(playerController);
         if (PlayerInfo.Instance == null || passive_List == null || playerController == null)
             return;
 
@@ -174,7 +168,6 @@ public class PassiveSkillManager : MonoBehaviour
         {
             string skillName = PlayerInfo.Instance.equipPassiveSkill[i];
 
-            // 기본 상태: 슬롯 UI 초기화 및 비활성화 세팅
             if (passive_images == null) return;
 
             passive_images[i].gameObject.SetActive(true);
@@ -183,20 +176,17 @@ public class PassiveSkillManager : MonoBehaviour
             passiveIcon[i].sprite = null;
             passiveIcon[i].gameObject.SetActive(false);
 
-            // 슬롯이 비어있으면 UI만 초기화(위의 코드)하고 다음 슬롯으로 넘어갑니다.
             if (string.IsNullOrEmpty(skillName))
                 continue;
 
             if (Enum.TryParse(skillName, true, out PassiveSkillType type))
             {
-                // 1. 패시브 데이터 가져오기 및 등록
                 PassiveSkillData skillData = GetPassiveData(type);
                 if (skillData != null)
                 {
                     RegisterPassive(skillData.skillType);
                 }
 
-                // 2. UI 이미지 입히기
                 Sprite sprite = GetSprite(type, false);
                 Sprite icon = GetSprite(type, true);
 
@@ -209,7 +199,7 @@ public class PassiveSkillManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"⚠️ [{skillName}]은 올바른 패시브 스킬 Enum 이름이 아닙니다. 오타를 확인하세요.");
+                Debug.LogWarning($"PassiveSkillManager: unknown passive skill name '{skillName}'.");
             }
         }
 

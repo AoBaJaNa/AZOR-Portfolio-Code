@@ -475,7 +475,6 @@ public class PlayerPassiveController : MonoBehaviour
     private IEnumerator AddStigmaStack()
     {
         yield return  _waitForEndOfFrame;
-        Debug.Log("타격 인정");
         var enemyList = playerController.playerCombat.GetDamagedEnemyList();
 
             foreach (var enemy in enemyList)

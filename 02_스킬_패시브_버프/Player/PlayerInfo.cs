@@ -926,11 +926,6 @@ public class PlayerInfo : MonoBehaviour
         {
             Debug.LogWarning($"PlayerInfo: 저장된 레벨 {originalLevel} 이(가) 현재 레벨 테이블 범위를 벗어나 {saveInfo.level}(으)로 보정되었습니다.");
         }
-        else
-        {
-            Debug.Log($"[PlayerInfo] NormalizeSaveInfo => loaded level:{saveInfo.level}");
-        }
-
         bool isBossTestSession = GameSession.Exists && GameSession.Instance.IsBossTestSession;
         bool hasLevelStats = TryGetLevelUpStats(saveInfo.level, out LevelUpStats savedLevelStats);
         if (hasLevelStats)
@@ -1066,7 +1061,6 @@ public class PlayerInfo : MonoBehaviour
         }
 
         currentHP = Mathf.Clamp(targetHp, 0, FinalMaxHP);
-        Debug.Log($"[PassiveTest] currentHP forced => {currentHP}/{FinalMaxHP} ({clampedPercent:0.#}%)");
         InvokeOnChangeStatus();
     }
 
@@ -1565,7 +1559,6 @@ public class PlayerInfo : MonoBehaviour
                 shouldRefillHpOnSessionInitialize = false;
             }
 
-            Debug.Log($"[PlayerInfo] ApplyLoadedData => level:{level}, exp:{exp}, hp:{currentHP}/{maxHP}, equipWeapon:{equipWeapon}");
 
         InvokeOnChangeStatus();
         ApplyGraphicsSettings();
@@ -1609,8 +1602,6 @@ public class PlayerInfo : MonoBehaviour
                     if (sec.Section == 
                         saveInfo.checkPoint)
                     {
-                        //////Debug.Log(saveInfo.checkPoint);
-                        //////Debug.Log(sec.spawnPos.position);
                         Vector3 pos = sec.spawnPos.position;
                         sec.ResetMap();
                         GetComponent<Rigidbody>().MovePosition(pos);

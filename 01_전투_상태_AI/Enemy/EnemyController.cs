@@ -93,7 +93,7 @@ public class EnemyController : MonoBehaviour
         currentDetectionRange = detectionRange;
         agent.autoBraking = false;
         rigidbody = GetComponent<Rigidbody>();
-        // Detection LayerMask 초기 설정: Player와 Summon 레이어를 모두 감지하도록 설정합니다.
+        // 플레이어와 소환수를 모두 탐지한다.
         detectionLayer = LayerMask.GetMask("Player", "Summon");
         if (obstacleBlockMask == 0)
             obstacleBlockMask = LayerMask.GetMask("Wall", "Environment", "Default");
@@ -381,7 +381,7 @@ public class EnemyController : MonoBehaviour
         if (!agent.enabled)
             agent.enabled = true;
 
-        // 현재 위치에서 반경 5.0m 이내의 가장 가까운 NavMesh 바닥을 찾습니다.
+        // 현재 위치 주변의 가장 가까운 NavMesh 지점을 찾는다.
         NavMeshHit hit;
         if (NavMesh.SamplePosition(transform.position, out hit, 5.0f, NavMesh.AllAreas))
         {
@@ -566,8 +566,7 @@ public class EnemyController : MonoBehaviour
     {
         StartCoroutine(FleeFromTargetCor());
     }
-    // [핵심] 이 함수 하나만 부르면 도망갑니다.
-    private IEnumerator FleeFromTargetCor() // 거리를 조금 더 늘려보세요
+    private IEnumerator FleeFromTargetCor()
     {
         if (IsFleeing)
             yield break;
@@ -581,24 +580,18 @@ public class EnemyController : MonoBehaviour
         IsFleeing = true;
         lastAIDecision = "Fleeing from target";
 
-        // 1. 플레이어와 반대되는 방향 벡터
         Vector3 fleeDir = (transform.position - CurrentTarget.position).normalized;
-
-        // 2. 일단 아주 멀리(예: 10m) 후보 지점을 잡습니다.
         Vector3 potentialFleePos = transform.position + fleeDir * (attackRange + 0.5f);
 
-        Vector3 finalDest = transform.position; // 기본값은 현재 위치
+        Vector3 finalDest = transform.position;
 
-        // 3. NavMesh 위에서 유효한 위치 찾기
-        // 범위를 너무 크게 주면(fleeSafeDistance) 제자리 근처가 잡힐 수 있으니 
-        // 적당한 범위(3~4f) 내에서 가장 가까운 NavMesh를 찾습니다.
         if (NavMesh.SamplePosition(potentialFleePos, out NavMeshHit hit, 4f, NavMesh.AllAreas))
         {
             finalDest = hit.position;
         }
         else
         {
-            // 만약 정반대 방향이 막혔다면? 약간의 랜덤성을 섞어 측면으로라도 튑니다.
+            // 직선 후퇴가 막히면 측면 방향에서 대체 경로를 찾는다.
             Vector3 randomDir = Quaternion.Euler(0, Random.Range(-45f, 45f), 0) * fleeDir;
             Vector3 fallbackPos = transform.position + randomDir * (attackRange + 0.5f);
 
@@ -608,14 +601,12 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        // 4. 이동 실행
-        followPathCoroutine = StartCoroutine(FollowPath(finalDest, current_chaseSpeed * 1.5f)); // 도망은 더 빠르게!
+        followPathCoroutine = StartCoroutine(FollowPath(finalDest, current_chaseSpeed * 1.5f));
         yield return followPathCoroutine;
         followPathCoroutine = null;
 
         IsFleeing = false;
 
-        // 상태 종료 알림
         enemyClass.StateMachine.CurrentState.OnActionEnd();
     }
     private IEnumerator KnockbackRoutine(Vector3 attackerPos, CombatFeedbackRequest request)
@@ -707,18 +698,15 @@ private IEnumerator FollowPath(Vector3 target, float speed, float stopDistance =
             yield break;
         }
 
-        // 1. 방어 코드: 오브젝트가 파괴되었거나, 에이전트가 비활성화/NavMesh이탈 시 즉시 중단
         if (this == null || agent == null || !agent.enabled || !agent.isOnNavMesh)
         {
             lastAIDecision = "Path interrupted: agent unavailable";
             yield break;
         }
 
-        // 2. 적이 죽었는지 확인
         if (enemyClass != null && enemyClass.enemyDead != null && enemyClass.enemyDead.isDead)
             break;
 
-        // 3. 목적지 도착 확인 (위의 방어 코드를 통과했으므로 안전하게 호출 가능)
         if (!agent.pathPending && agent.remainingDistance <= stopDistance)
             break;
 

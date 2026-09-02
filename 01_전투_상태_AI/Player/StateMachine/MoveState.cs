@@ -4,10 +4,6 @@ public class MoveState : BaseState
 {
     public Vector2 Input { get; set; }
     public MoveState(PlayerController player, StateMachine<BaseState> stateMachine) : base(player,stateMachine) {}
-    public override void Enter()
-    {
-        player.CheckState();
-    }
     public override void OnMoveInput(Vector2 input)
     {
         player.playerMovement.SetMoveInput(input);

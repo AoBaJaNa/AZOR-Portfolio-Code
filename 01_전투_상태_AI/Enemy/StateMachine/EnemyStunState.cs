@@ -8,7 +8,6 @@ public class EnemyStunState : EnemyBaseState
     public EnemyStunState(EnemyClass enemyClass, StateMachine<EnemyBaseState> state) : base(enemyClass,state){}
     public override void Enter()
     {
-        enemyClass.CheckCurrentState();
         enemyClass.enemyController.StunEnemy(duration);
         enemyClass.enemyDead.StunEffect(duration);
         enemyClass.enemyVFX.HitParticle(EnemyHitEffectType.Stun);
